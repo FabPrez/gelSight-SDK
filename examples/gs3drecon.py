@@ -215,7 +215,7 @@ class Reconstruction3D:
 
         self.cpuorgpu = cpuorgpu
         device = torch.device(cpuorgpu)
-
+        print ('----device = ', device)
         if not os.path.isfile(net_path):
             print('Error opening ', net_path, ' does not exist')
             return
@@ -323,7 +323,7 @@ class Reconstruction3D:
         # cv2.imshow('dm',dm)
 
         ''' remove initial zero depth '''
-        if self.dm_zero_counter < 50:
+        if self.dm_zero_counter < 50:  # IT was 50 - Fabio
             self.dm_zero += dm
             print ('zeroing depth. do not touch the gel!')
             if self.dm_zero_counter == 49:

@@ -2,10 +2,13 @@ import sys
 import numpy as np
 import cv2
 import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
+
 import open3d
 import copy
-from gelsight import gsdevice
-from gelsight import gs3drecon
+import gsdevice
+import gs3drecon
 import rospy
 from sensor_msgs.msg import PointCloud2
 import std_msgs.msg
@@ -27,13 +30,15 @@ def main(argv):
 
     # Set flags
     SAVE_VIDEO_FLAG = False
-    GPU = False
-    MASK_MARKERS_FLAG = True
+    GPU = True
+    MASK_MARKERS_FLAG = False
     USE_ROI = False
     PUBLISH_ROS_PC = True
     SHOW_3D_NOW = True
+    IS_LIVE = False
     # Path to 3d model
     path = '.'
+    counter = 0
 
     # Set the camera resolution
     mmpp = 0.0634  # mini gel 18x24mm at 240x320
@@ -44,7 +49,9 @@ def main(argv):
     # the device ID can change after chaning the usb ports.
     # on linux run, v4l2-ctl --list-devices, in the terminal to get the device ID for camera
     dev = gsdevice.Camera("GelSight Mini")
-    net_file_path = '../nnmini.pt'
+    net_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','nnmini.pt')) 
+    print('----net_file_path path is: ', net_file_path)
+    # net_file_path = '../nnmini.pt'
 
     dev.connect()
 
@@ -62,6 +69,9 @@ def main(argv):
     net = nn.load_nn(net_path, gpuorcpu)
 
     f0 = dev.get_raw_image()
+    # FABIO -----------
+    # f0 has to load the image from the same folder as the script
+    # f0 = cv2.imread(os.path.abspath(os.path.join(os.path.dirname(__file__),'lungo.png')))
 
     if SAVE_VIDEO_FLAG:
         #### Below VideoWriter object will create a frame of above defined The output is stored in 'filename.avi' file.
@@ -102,11 +112,24 @@ def main(argv):
         rate = rospy.Rate(60)
         while not rospy.is_shutdown():
 
-            # get the roi image
-            f1 = dev.get_image()
+            # FABIO -----------
+            # used to simulate dynamic image loading
+            if IS_LIVE:
+                f1 = dev.get_image()
+            else:
+                counter +=1
+                if counter <51:
+                    image_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'sfondo.png'))
+                    counter +=1
+                else:
+                    image_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'ball.png'))
+                print('abs path is: ', image_path)
+                f1 = cv2.imread(image_path)
+    
             if USE_ROI:
                 f1 = f1[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
             bigframe = cv2.resize(f1, (f1.shape[1] * 2, f1.shape[0] * 2))
+            
             #cv2.imshow('Image', bigframe)
 
             # compute the depth map
