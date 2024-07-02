@@ -35,7 +35,7 @@ def main(argv):
     USE_ROI = False
     PUBLISH_ROS_PC = True
     SHOW_3D_NOW = True
-    IS_LIVE = False
+    IS_SIMULATED = False
     # Path to 3d model
     path = '.'
     counter = 0
@@ -50,8 +50,6 @@ def main(argv):
     # on linux run, v4l2-ctl --list-devices, in the terminal to get the device ID for camera
     dev = gsdevice.Camera("GelSight Mini")
     net_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'..','nnmini.pt')) 
-    print('----net_file_path path is: ', net_file_path)
-    # net_file_path = '../nnmini.pt'
 
     dev.connect()
 
@@ -114,7 +112,7 @@ def main(argv):
 
             # FABIO -----------
             # used to simulate dynamic image loading
-            if IS_LIVE:
+            if IS_SIMULATED:
                 f1 = dev.get_image()
             else:
                 counter +=1
@@ -123,7 +121,7 @@ def main(argv):
                     counter +=1
                 else:
                     image_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'ball.png'))
-                print('abs path is: ', image_path)
+                # print('abs path is: ', image_path)
                 f1 = cv2.imread(image_path)
     
             if USE_ROI:
