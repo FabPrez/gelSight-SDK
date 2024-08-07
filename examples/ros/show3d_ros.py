@@ -112,7 +112,7 @@ def main(argv):
 
             # FABIO -----------
             # used to simulate dynamic image loading
-            if IS_SIMULATED:
+            if not IS_SIMULATED:
                 f1 = dev.get_image()
             else:
                 counter +=1
