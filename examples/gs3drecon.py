@@ -367,8 +367,9 @@ class Reconstruction3D:
 
 
 class Visualize3D:
-    def __init__(self, n, m, save_path, mmpp):
+    def __init__(self, n, m, save_path, mmpp, name_finger):
         self.n, self.m = n, m
+        self.name_finger = str(name_finger)
         self.init_open3D()
         self.cnt = 212
         self.save_path = save_path
@@ -385,12 +386,11 @@ class Visualize3D:
         self.points[:, 1] = np.ndarray.flatten(self.Y) #/ self.n
 
         self.depth2points(Z)
-
         self.pcd = open3d.geometry.PointCloud()
         self.pcd.points = open3d.utility.Vector3dVector(self.points)
         # self.pcd.colors = Vector3dVector(np.zeros([self.n, self.m, 3]))
         self.vis = open3d.visualization.Visualizer()
-        self.vis.create_window(width=640, height=480)
+        self.vis.create_window(self.name_finger, width=640, height=480)
         self.vis.add_geometry(self.pcd)
 
     def depth2points(self, Z):
